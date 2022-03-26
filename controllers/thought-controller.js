@@ -39,11 +39,11 @@ const thoughtController = {
     //update thought 
     updateThought(req, res) {
         Thought.findOneAndUpdate({ _id: req.params.thoughtId }, { $set: req.body }, { runValidators: true, new: true })
-        .then((dbThoughtData) => {
-          if (!dbThoughtData) {
+        .then((thoughtData) => {
+          if (!thoughtData) {
             return res.status(404).json({ message: 'No thought with this id!' });
           }
-          res.json(dbThoughtData);
+          res.json(thoughtData);
         })
         .catch((err) => {
           console.log(err);
@@ -52,11 +52,11 @@ const thoughtController = {
       },
       getThoughtById(req,res){
         Thought.findOne({ _id: req.params.thoughtId })
-        .then((dbThoughtData) => {
-          if (!dbThoughtData) {
+        .then((thoughtData) => {
+          if (!thoughtData) {
             return res.status(404).json({ message: 'No thought with this id!' });
           }
-          res.json(dbThoughtData);
+          res.json(thoughtData);
         })
         .catch((err) => {
           console.log(err);
@@ -75,7 +75,43 @@ const thoughtController = {
           console.log(err);
           res.status(500).json(err);
         });
-      }
+      },
+      //add reaction to thoughts
+      addReaction(req, res) {
+        Thought.findOneAndUpdate(
+          { _id: req.params.thoughtId },
+          { $addToSet: { reactions: req.body } },
+          { runValidators: true, new: true }
+        )
+          .then((thoughtData) => {
+            if (!thoughtData) {
+              return res.status(404).json({ message: 'No thought with this id!' });
+            }
+            res.json(thoughtData);
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(500).json(err);
+          });
+      },
+      // Delete reaction
+      removeReaction(req, res) {
+        Thought.findOneAndUpdate(
+          { _id: req.params.thoughtId },
+          { $pull: { reactions: { reactionId: req.params.reactionId } } },
+          { runValidators: true, new: true }
+        )
+          .then((thoughtData) => {
+            if (!thoughtData) {
+              return res.status(404).json({ message: 'No thought with this id!' });
+            }
+            res.json(thoughtData);
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(500).json(err);
+          });
+      },
 }
 
 module.exports = thoughtController;
